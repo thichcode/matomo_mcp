@@ -2,6 +2,10 @@
 
 MCP (Model Context Protocol) server để quản trị Matomo Analytics. Server này cung cấp các công cụ để tương tác với Matomo API thông qua giao diện MCP.
 
+<a href="https://glama.ai/mcp/servers/@thichcode/matomo_mcp">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@thichcode/matomo_mcp/badge" alt="Matomo Server MCP server" />
+</a>
+
 ## Tính năng
 
 ### Quản lý Sites
