@@ -1,14 +1,19 @@
 import axios, { AxiosInstance } from 'axios';
 import { MatomoConfig, MatomoSite, MatomoUser, MatomoReport, MatomoGoal, MatomoSegment, MatomoSystemInfo } from '../types/matomo.js';
+import { sanitizeUrl, validateMatomoConfig } from '../utils/helpers.js';
 
 export class MatomoApiService {
   private client: AxiosInstance;
   private config: MatomoConfig;
 
   constructor(config: MatomoConfig) {
-    this.config = config;
+    validateMatomoConfig(config);
+    this.config = {
+      ...config,
+      baseUrl: sanitizeUrl(config.baseUrl),
+    };
     this.client = axios.create({
-      baseURL: config.baseUrl,
+      baseURL: this.config.baseUrl,
       timeout: 30000,
     });
   }
@@ -16,6 +21,7 @@ export class MatomoApiService {
   private async makeRequest(method: string, params: Record<string, any> = {}): Promise<any> {
     const requestParams = {
       module: 'API',
+      method,
       format: 'JSON',
       token_auth: this.config.tokenAuth,
       ...params,
@@ -24,9 +30,13 @@ export class MatomoApiService {
     try {
       const response = await this.client.get('', { params: requestParams });
       return response.data;
-    } catch (error) {
+    } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        throw new Error(`Matomo API error: ${error.response?.data?.message || error.message}`);
+        const responseMessage =
+          typeof error.response?.data === 'object' && error.response?.data && 'message' in error.response.data
+            ? String(error.response.data.message)
+            : undefined;
+        throw new Error(`Matomo API error: ${responseMessage || error.message}`);
       }
       throw error;
     }
